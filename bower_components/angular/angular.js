@@ -1664,7 +1664,7 @@ function angularInit(element, bootstrap) {
  *
  * Angular will detect if it has been loaded into the browser more than once and only allow the
  * first loaded script to be bootstrapped and will report a warning to the browser console for
- * each of the subsequent scripts. This prevents strange results in applications, where otherwise
+ * each of the subsequent coffee_scripts. This prevents strange results in applications, where otherwise
  * multiple instances of Angular try to work on the DOM.
  *
  * <div class="alert alert-warning">
@@ -11782,7 +11782,7 @@ function createHttpBackend($browser, createXhr, $browserDefer, callbacks, rawDoc
 
   function jsonpReq(url, callbackId, done) {
     // we can't use jQuery/jqLite here because jQuery does crazy stuff with script elements, e.g.:
-    // - fetches local scripts via XHR and evals them
+    // - fetches local coffee_scripts via XHR and evals them
     // - adds and immediately removes script elements from the document
     var script = rawDocument.createElement('script'), callback = null;
     script.type = "text/javascript";

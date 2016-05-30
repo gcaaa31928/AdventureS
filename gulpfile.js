@@ -7,9 +7,10 @@ var inject = require('gulp-inject');
 var sourcemaps = require('gulp-sourcemaps');
 var mainBowerFiles = require('main-bower-files');
 var del = require('del');
+var wiredep = require('wiredep').stream;
 
 var paths = {
-    scripts: ['app/scripts/**/*.coffee', '!client/external/**/*.coffee']
+    scripts: ['app/coffee_scripts/**/*.coffee', '!client/external/**/*.coffee']
 };
 
 // Not all tasks need to use streams
@@ -23,19 +24,30 @@ gulp.task('scripts', ['clean'], function () {
     // Minify and copy all JavaScript (except vendor scripts)
     // with sourcemaps all the way down
     return gulp.src(paths.scripts)
-        .pipe(sourcemaps.init())
+        // .pipe(sourcemaps.init())
         .pipe(coffee())
-        .pipe(uglify())
-        .pipe(concat('all.min.js'))
-        .pipe(sourcemaps.write())
+        // .pipe(uglify())
+        // .pipe(concat('all.min.js'))
+        // .pipe(sourcemaps.write())
         .pipe(gulp.dest('build/js'))
         .pipe(gulp.dest('app/scripts'));
 });
 
-gulp.task('index', function () {
+
+gulp.task('bower', function () {
     return gulp.src('./app/index.html')
-        .pipe(inject(gulp.src(mainBowerFiles(), {read: false}), {name: 'bower', relative: true}))
-        .pipe(gulp.dest('./build'));
+        .pipe(wiredep({
+            optional: 'configuration',
+            goes: 'here'
+        }))
+        .pipe(gulp.dest('./app/'));
+});
+
+gulp.task('inject', function () {
+    var target = gulp.src('./app/index.html');
+    var sources = gulp.src(['./app/**/*.js', './app/**/*.css'], {read: false});
+    return target.pipe(inject(sources))
+        .pipe(gulp.dest('./app'));
 });
 
 // Copy all static images
@@ -49,6 +61,7 @@ gulp.task('images', ['clean'], function () {
 // Rerun the task when a file changes
 gulp.task('watch', function () {
     gulp.watch(paths.scripts, ['scripts']);
+    gulp.watch('bower.json', ['bower']);
 });
 
 gulp.task('start:server', function () {
@@ -60,4 +73,4 @@ gulp.task('start:server', function () {
     });
 });
 // The default task (called when you run `gulp` from cli)
-gulp.task('default', ['watch', 'scripts', 'index', 'start:server']);
+gulp.task('default', ['watch', 'scripts', 'bower', 'start:server']);
