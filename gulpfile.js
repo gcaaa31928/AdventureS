@@ -10,7 +10,8 @@ var del = require('del');
 var wiredep = require('wiredep').stream;
 
 var paths = {
-    scripts: ['app/coffee_scripts/**/*.coffee', '!client/external/**/*.coffee']
+    coffee_scripts: ['app/coffee_scripts/**/*.coffee', '!client/external/**/*.coffee'],
+    scripts: ['./app/**/*.js', './app/**/*.css']
 };
 
 // Not all tasks need to use streams
@@ -23,7 +24,7 @@ gulp.task('clean', function () {
 gulp.task('scripts', ['clean'], function () {
     // Minify and copy all JavaScript (except vendor scripts)
     // with sourcemaps all the way down
-    return gulp.src(paths.scripts)
+    return gulp.src(paths.coffee_scripts)
         // .pipe(sourcemaps.init())
         .pipe(coffee())
         // .pipe(uglify())
@@ -60,8 +61,9 @@ gulp.task('images', ['clean'], function () {
 
 // Rerun the task when a file changes
 gulp.task('watch', function () {
-    gulp.watch(paths.scripts, ['scripts']);
+    gulp.watch(paths.coffee_scripts, ['scripts']);
     gulp.watch('bower.json', ['bower']);
+    gulp.watch(paths.scripts, ['inject']);
 });
 
 gulp.task('start:server', function () {
@@ -73,4 +75,4 @@ gulp.task('start:server', function () {
     });
 });
 // The default task (called when you run `gulp` from cli)
-gulp.task('default', ['watch', 'scripts', 'bower', 'start:server']);
+gulp.task('default', ['watch', 'scripts', 'bower', 'inject', 'start:server']);
