@@ -1,10 +1,6 @@
 adventureSApp = angular.module 'adventureSApp', [
-    'ngAnimate',
-    'ngAria',
     'ngRoute',
     'ui.router'
-    'ngSanitize',
-    'ngTouch'
 ]
 adventureSApp.config [
     '$stateProvider',

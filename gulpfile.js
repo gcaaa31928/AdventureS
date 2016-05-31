@@ -6,12 +6,13 @@ var uglify = require('gulp-uglify');
 var inject = require('gulp-inject');
 var sourcemaps = require('gulp-sourcemaps');
 var mainBowerFiles = require('main-bower-files');
+var runSequence = require('run-sequence');
 var del = require('del');
 var wiredep = require('wiredep').stream;
 
 var paths = {
     coffee_scripts: ['app/coffee_scripts/**/*.coffee', '!client/external/**/*.coffee'],
-    scripts: ['./app/**/*.js', './app/**/*.css']
+    scripts: ['./build/**/*.js', './build/**/*.css']
 };
 
 // Not all tasks need to use streams
@@ -30,8 +31,8 @@ gulp.task('scripts', ['clean'], function () {
         // .pipe(uglify())
         // .pipe(concat('all.min.js'))
         // .pipe(sourcemaps.write())
-        .pipe(gulp.dest('build/js'))
-        .pipe(gulp.dest('app/scripts'));
+        .on('error', swallowError)
+        .pipe(gulp.dest('app/scripts'))
 });
 
 
@@ -41,15 +42,17 @@ gulp.task('bower', function () {
             optional: 'configuration',
             goes: 'here'
         }))
+        .on('error', swallowError)
         .pipe(gulp.dest('./app/'));
 });
-
-gulp.task('inject', function () {
-    var target = gulp.src('./app/index.html');
-    var sources = gulp.src(['./app/**/*.js', './app/**/*.css'], {read: false});
-    return target.pipe(inject(sources))
-        .pipe(gulp.dest('./app'));
-});
+//
+// gulp.task('inject', function () {
+//     var target = gulp.src('./build/index.html');
+//     var sources = gulp.src(['./build/**/*.js', './build/**/*.css'], {read: false});
+//     return target.pipe(inject(sources, {ignorePath: 'build'}))
+//         .on('error', swallowError)
+//         .pipe(gulp.dest('./build/'));
+// });
 
 // Copy all static images
 gulp.task('images', ['clean'], function () {
@@ -63,7 +66,6 @@ gulp.task('images', ['clean'], function () {
 gulp.task('watch', function () {
     gulp.watch(paths.coffee_scripts, ['scripts']);
     gulp.watch('bower.json', ['bower']);
-    gulp.watch(paths.scripts, ['inject']);
 });
 
 gulp.task('start:server', function () {
@@ -71,8 +73,20 @@ gulp.task('start:server', function () {
         root: ['app'],
         livereload: false,
         // Change this to '0.0.0.0' to access the server from outside.
-        port: 9000
+        port: 9000,
+        middleware: function (connect) {
+            return [connect().use("/bower_components", connect.static("bower_components"))];
+        }
     });
 });
 // The default task (called when you run `gulp` from cli)
-gulp.task('default', ['watch', 'scripts', 'bower', 'inject', 'start:server']);
+gulp.task('serve', function(cb) {
+    runSequence('scripts', 'bower', 'start:server', 'watch', cb);
+});
+gulp.task('default', ['watch', 'scripts', 'bower', 'start:server']);
+
+
+function swallowError (error) {
+    console.log(error.toString());
+    this.emit('end')
+}

@@ -25,6 +25,7 @@
     "gulp-sourcemaps": "^1.6.0",
     "gulp-uglify": "^1.5.3",
     "main-bower-files": "^2.13.1",
+    "run-sequence": "^1.2.1",
     "wiredep": "^4.0.0"
   },
   "devDependencies": {
