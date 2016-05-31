@@ -11,7 +11,8 @@
 .idea/dictionaries
 .idea/vcs.xml
 .idea/jsLibraryMappings.xml
-
+node_modules/
+bower_components/
 # Sensitive or high-churn files:
 .idea/dataSources.ids
 .idea/dataSources.xml
